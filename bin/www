@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+
+const app = require('../app');
+const debug = require('debug')('untitled:server');
+const http = require('http');
+const fs = require('fs')
+const port = normalizePort(process.env.PORT || '8888');
+app.set('port', port);
+
+/**
+ * 创建https服务.
+ */
+// https证书
+const options = {
+  key: fs.readFileSync('public/ssl/2_huzitai.com.key'), //密钥路径
+  cert: fs.readFileSync('public/ssl/1_huzitai.com_bundle.crt')
+};
+const server = http.createServer(app);
+
+/**
+ * 监听所有网络接口上提供的端口。
+ */
+console.log('node服务已启动,端口号：' + port);
+server.listen(Number(port));
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * 将端口规范化为数字、字符串或false。
+ */
+
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // 端口是数字
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * HTTP服务器"error"事件监听器
+ */
+
+function onError(error) {
+  console.log(error)
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+  // 用友好的消息处理特定的侦听错误
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + '端口已占用');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * HTTP服务器“监听”事件的事件监听器。
+ */
+
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
