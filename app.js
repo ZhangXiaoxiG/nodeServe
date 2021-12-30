@@ -11,6 +11,7 @@ const upLoading = require('./routes/uploading'); // 上传
 const login = require('./routes/login'); // 登录
 const menuRouter = require('./routes/menu'); // 菜单管理
 const billRouter = require('./routes/bill'); // 菜单管理
+const gorupRouter = require('./routes/gorup')
 const app = express();
 app.use('/public', express.static(__dirname + '/public')); // 设置静态资源托管
 app.set('views', path.join(__dirname, 'views')); // 静态页设置
@@ -52,6 +53,7 @@ app.use('/api/menu', menuRouter);
 app.use('/api/user', usersRouter);
 app.use('/api/uploading', upLoading)
 app.use('/api/bill', billRouter)
+app.use('/api/gorup', gorupRouter)
 // 捕获404并转发到错误处理程序
 app.use(function (req, res, next) {
     next(createError(404));

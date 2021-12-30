@@ -1,3 +1,7 @@
 hello wordhello word
 hello word
  url:post:/getMenuList,err:就是提示错误,time:2021-12-22 10:30:46
+ url:url:get:/api/bill/getListerr:ReferenceError: row is not defined,time:2021-12-26 11:22:47
+ url:url:get:/api/bill/getListerr:ReferenceError: row is not defined,time:2021-12-26 11:25:37
+ url:url:get:/api/bill/getListerr:ReferenceError: row is not defined,time:2021-12-26 11:38:32
+ url:url:get:/api/bill/getListerr:ReferenceError: row is not defined,time:2021-12-26 11:40:44

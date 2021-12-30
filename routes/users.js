@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../model/express');
 const xiao = require('../model/xiao');
-const fs = require('fs')
+const md5 = require('md5-node')
 const { body, validationResult } = require('express-validator');
 // 获取用户列表
 router.get('/getUserList', function (req, res, next) {
@@ -38,13 +38,17 @@ router.post('/create',
             const data = req.body
             // 连接数据库
             let connection = db.connection();  // 数据库
-            let sql1 = `SELECT * from user_tbl where username=${data.account}`
+            let sql1 = `SELECT * from user_tbl where account=${data.account}`
             db.insert(connection, sql1, (err, rows) => {
                 if (err) throw new Error(err)
                 // 判断是否存在用户
                 if (rows.length === 0) {
                     const creation_time = xiao.getTime()
-                    const sql = `INSERT INTO user_tbl(username,password,creation_time,ID,account) VALUES('${data.username}','${data.password}','${creation_time}','${xiao.uuid.v4()}','${data.account}')`;
+                    const sql = `INSERT INTO user_tbl(
+                        username,password,creation_time,ID,account
+                        ) VALUES(
+                        '${data.username}','${ md5(data.password)}','${creation_time}',
+                        '${xiao.uuid.v4()}','${data.account}')`;
                     db.insert(connection, sql, (err) => {
                         if (err) throw new Error(err)
                         res.jsonp(xiao.jsonP('添加成功', 0, null))

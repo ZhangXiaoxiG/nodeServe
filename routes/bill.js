@@ -71,4 +71,32 @@ router.delete('/delCreate', (req, res) => {
         return res.status(400).json(xiao.jsonP('参数无效', 0, null));
     }
 })
+router.put('/editBill',
+    body('id').isUUID('4').withMessage('id无效'),
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json(xiao.jsonP('参数错误', 0, {errors: errors.array()}));
+        }
+        try {
+            let str = ''
+            for (let key in req.body) {
+              if (key !== 'id') {
+                  str += '\`' + key + '\`' + ' = \'' + req.body[key] + '\','
+              }
+            }
+            if (str.length > 0) str = str.substring(0,str.length - 1);
+            let sql = `UPDATE \`baby\`.\`bill_tbl\` SET ${str} WHERE \`ID\`='${req.body.id}'`
+            const connection = db.connection();
+            db.insert(connection,sql,(err) => {
+                if (err) throw new Error(err);
+                res.jsonp(xiao.jsonP('修改成功', 1, null))
+            })
+
+
+        } catch (err) {
+            xiao.log('url:get:/api/bill/getList', err)
+            res.jsonp(xiao.jsonP('修改失败', 0, null))
+        }
+    })
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../model/express');
 const xiao = require('../model/xiao');
 const jwt = require('jsonwebtoken');
+const md5 = require('md5-node')
 const {body, validationResult} = require('express-validator');
 router.post('/login',
     body('account').custom((value, {req}) => {
@@ -20,29 +21,34 @@ router.post('/login',
         }
     const data = req.body
     const connection = db.connection();  // 数据库
-    let sql = `SELECT * from user_tbl where account=${data.account}`
+    const sql = `SELECT * from user_tbl where account=${data.account} and password = '${md5(data.password)}'`
     db.insert(connection, sql, (err, rows) => {
-        err ? console.log(err) : null
-        if (rows.length !== 0) {
-            if (rows[0].password === data.password) {
-                // Token 数据
-                const payload = {
-                    id: rows[0].ID
-                }
-// 密钥
-                const secret = 'ILOVE'
-// 签发 Token
-                const token = jwt.sign(payload, secret, { expiresIn: '1day' })
-                const data = {
-                    token: token
-                }
-                return res.jsonp(xiao.jsonP('登录成功', 1, data))
+        try {
+            if (err) new Error(err);
+            if (rows.length !== 0) {
+                const selectSql = `select gorupmaster.gorup_name,gorupmaster.gorup_id from gorupmaster where user_id = '${rows[0].ID}'`
+                db.insert(connection,selectSql,(error,data) => {
+                    if (error) throw new Error(err);
+                    const payload = {
+                        id: rows[0].ID,
+                        role:data
+                    }
+                    const secret = 'ILOVE'
+                    const token = jwt.sign(payload, secret, { expiresIn: 3600 * 24  })
+                    const query = {
+                        token: token
+                    }
+                    return res.jsonp(xiao.jsonP('登录成功', 1, query))
+                })
             } else {
-                return res.jsonp(xiao.jsonP('密码错误', 0, null))
+                return res.jsonp(xiao.jsonP('登录失败，请检查账号密码是否正确', 0, null))
             }
-        } else {
-            return res.jsonp(xiao.jsonP('用户不存在', 0, null))
         }
+        catch (err) {
+            console.log(err)
+            res.status(500)
+        }
+
     })
 })
 module.exports = router;

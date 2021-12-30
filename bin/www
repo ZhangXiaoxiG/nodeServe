@@ -20,7 +20,6 @@ const server = http.createServer(app);
 /**
  * 监听所有网络接口上提供的端口。
  */
-console.log('node服务已启动,端口号：' + port);
 server.listen(Number(port));
 server.on('error', onError);
 server.on('listening', onListening);

@@ -5,22 +5,31 @@ const db = require('../model/express');
 const xiao = require('../model/xiao');
 // 获取菜单
 router.get('/getMenuList', (req, res) => {
-    console.log(req.user)
     const connection = db.connection();  // 数据库
-    let sql = `SELECT * FROM \`baby\`.\`menu_tbl\` ORDER BY menu_order LIMIT 0,1000`
-    try {
-        db.insert(connection, sql, (err, rows) => {
-            if (err) {
-                throw err
+    let sql1 = `select gorupmaster.gorup_id from gorupmaster where user_id = '${req.user.id}'`
+    db.insert(connection,sql1,(err,rows) => {
+        try {
+            if (err) throw new Error(err);
+            if (rows.length > 0) {
+                const selectSql = `SELECT menu_tbl.ID,menu_tbl.Text,menu_tbl.Url,
+                            menu_tbl.icon,menu_tbl.menu_order,menu_tbl.parent_id 
+                            from  menu_tbl,jurisdiction_gorup WHERE 
+                            menu_tbl.ID = jurisdiction_gorup.menu_id 
+                            AND jurisdiction_gorup.gorup_id = '${rows[0].gorup_id}' 
+                            ORDER BY menu_order LIMIT 0,1000`
+                db.insert(connection,selectSql,(error,data) => {
+                    if (error) throw new Error(error)
+                    res.jsonp(xiao.jsonP('获取成功', 1, xiao.toThree(data)))
+                })
             } else {
-                res.jsonp(xiao.jsonP('获取成功', 1, xiao.toThree(rows)))
+                res.jsonp(xiao.jsonP('当前用户未分配角色', 0, null))
             }
-        })
-    } catch (err) {
-        console.error(err)
-        xiao.log('url:post:/getMenuList',err)
-    }
-
+        }
+        catch (err) {
+            res.status(500)
+            console.log(err)
+        }
+    })
 })
 // 添加菜单
 router.post('/create', body('Url').isLength({min: 1, max: 20}), body('Text').isLength({
@@ -86,9 +95,15 @@ router.put('/putMenuList',
         if (!errors.isEmpty()) {
             return res.status(400).json(xiao.jsonP('参数错误', 0, {errors: errors.array()}));
         }
-        const {id, menu_order, parent_id, Url, Text, icon} = req.body
+        let str = ''
+        for (let key in req.body) {
+            if (key !== 'id') {
+                str += '\`' + key + '\`' + ' = \'' + req.body[key] + '\','
+            }
+        }
+        if (str.length > 0) str = str.substring(0,str.length - 1);
         const connection = db.connection();
-        const sql = `UPDATE \`baby\`.\`menu_tbl\` SET \`menu_order\` ='${menu_order}' , \`Url\` ='${Url}' ,\`parent_id\` = '${parent_id || null}', \`Text\` ='${Text}' , \`icon\` ='${icon}'  where \`ID\`='${id}'`
+        const sql = `UPDATE \`baby\`.\`menu_tbl\` SET ${str}  where \`ID\`='${id}'`
         try {
             db.insert(connection, sql, (err) => {
                 if (err) {
