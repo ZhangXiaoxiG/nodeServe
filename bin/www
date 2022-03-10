@@ -4,7 +4,7 @@ const app = require('../app');
 const debug = require('debug')('untitled:server');
 const http = require('http');
 const fs = require('fs')
-const port = normalizePort(process.env.PORT || '8888');
+const port = normalizePort(process.env.PORT || '8899');
 app.set('port', port);
 
 /**
@@ -12,8 +12,8 @@ app.set('port', port);
  */
 // https证书
 const options = {
-  key: fs.readFileSync('public/ssl/2_huzitai.com.key'), //密钥路径
-  cert: fs.readFileSync('public/ssl/1_huzitai.com_bundle.crt')
+  key: fs.readFileSync('bin/ssl/2_huzitai.com.key'), //密钥路径
+  cert: fs.readFileSync('bin/ssl/1_huzitai.com_bundle.crt')
 };
 const server = http.createServer(app);
 

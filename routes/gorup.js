@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const {body, validationResult} = require('express-validator');  // 字段校验
 const db = require('../model/express');
-const xiao = require('../model/xiao');
+const xiao = require('../model/tool');
 const async = require('async')
+/** router /api/gorup/getList
+ *
+ * */
 router.get('/getList', (req, res) => {
     const connection = db.connection();
     async.series({
@@ -38,7 +41,6 @@ router.get('/getList', (req, res) => {
     function select(id) {
         return new Promise((resolve, reject) => {
             const sql = `select jurisdiction_gorup.menu_name from jurisdiction_gorup where gorup_id = '${id}'`
-
             db.insert(connection, sql, (err, rows) => {
                 if (err) reject(err);
                 if (rows.length > 0) {
@@ -46,12 +48,8 @@ router.get('/getList', (req, res) => {
                 } else {
                     resolve(false)
                 }
-
             })
         })
-
     }
-
-    res.status(200)
 })
 module.exports = router

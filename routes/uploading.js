@@ -4,11 +4,11 @@ const fs = require('fs')
 const bodyparser = require('body-parser');//解析post数据
 const multer = require('multer');
 const iconvLite = require('iconv-lite');
-const xiao = require('../model/xiao');
+const xiao = require('../model/tool');
 const path = require('path');
 // 设置文件上传默认路径
 const uploader = multer({
-    dest: path.join(path.dirname(__dirname), 'public', 'images')
+    dest: path.join(path.dirname(__dirname), 'public')
 })
 express().use(uploader.any())
 const db = require('../model/express');

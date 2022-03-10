@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {body, validationResult} = require('express-validator');  // 字段校验
 const db = require('../model/express');
-const xiao = require('../model/xiao');
+const xiao = require('../model/tool');
 // 获取菜单
 router.get('/getMenuList', (req, res) => {
     const connection = db.connection();  // 数据库

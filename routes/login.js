@@ -1,54 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../model/express');
-const xiao = require('../model/xiao');
-const jwt = require('jsonwebtoken');
+const user = require('../model/user.js');
 const md5 = require('md5-node')
-const {body, validationResult} = require('express-validator');
-router.post('/login',
-    body('account').custom((value, {req}) => {
-        const phone =/^[1][3,4,5,7,8,9][0-9]{9}$/;
-        if (!phone.test(req.body.account)) {
-            throw new Error('账号格式不正确！')
+const async = require('async')
+const jwt = require("jsonwebtoken");
+router.post('/login', (req, res, next) => {
+    async.waterfall([(callback) => {
+        console.time('登录')
+        if (!req.body.account || req.body.account.length < 6) {
+            return res.status(400).json({code: -1, message: '账号格式不正确', data: null})
         }
-        return true
-    }),
-    body('password').isLength({min: 6, max: 20}).withMessage('密码长度最小为6，最大为20。'),
-    function (req, res, next) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(401).json(xiao.jsonP('参数错误', 0, {errors: errors.array()}));
+        if (!req.body.password || req.body.password.length < 6) {
+            return res.status(400).json({code: -1, message: '密码最小为6位', data: null})
         }
-    const data = req.body
-    const connection = db.connection();  // 数据库
-    const sql = `SELECT * from user_tbl where account=${data.account} and password = '${md5(data.password)}'`
-    db.insert(connection, sql, (err, rows) => {
-        try {
-            if (err) new Error(err);
-            if (rows.length !== 0) {
-                const selectSql = `select gorupmaster.gorup_name,gorupmaster.gorup_id from gorupmaster where user_id = '${rows[0].ID}'`
-                db.insert(connection,selectSql,(error,data) => {
-                    if (error) throw new Error(err);
-                    const payload = {
-                        id: rows[0].ID,
-                        role:data
-                    }
-                    const secret = 'ILOVE'
-                    const token = jwt.sign(payload, secret, { expiresIn: 3600 * 24  })
-                    const query = {
-                        token: token
-                    }
-                    return res.jsonp(xiao.jsonP('登录成功', 1, query))
-                })
-            } else {
-                return res.jsonp(xiao.jsonP('登录失败，请检查账号密码是否正确', 0, null))
-            }
+        const data = user.login([req.body.account, md5(req.body.password)])
+        data.then(res => {
+            res.length > 0 ?  callback(null, res) : callback('登录失败，请检查账号密码是否正确', null)
+        }).catch(err => {
+            callback('服务器错误，请稍候重试！', null)
+        })
+    }, (row, callback) => {
+        console.log(row)
+        const data = user.checkUserJurisdiction(row.map(q => q.id))
+        data.then(res => {
+            const token = jwt.sign({
+                id: row[0].id,
+                role: res
+            }, 'ILOVE', {expiresIn: 3600 * 24})
+            callback(null, token)
+        }).catch(err => {
+            callback('服务器错误，请稍候重试！', null)
+        })
+    }], (err, result) => {
+        console.timeEnd('登录')
+        if (err) {
+            res.status(200).json({code: -1, message: err, data: null})
+        } else {
+            res.status(200).json({code: 1, message: '登录成功！', data: result})
         }
-        catch (err) {
-            console.log(err)
-            res.status(500)
-        }
-
     })
 })
 module.exports = router;

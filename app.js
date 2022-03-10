@@ -11,8 +11,14 @@ const upLoading = require('./routes/uploading'); // 上传
 const login = require('./routes/login'); // 登录
 const menuRouter = require('./routes/menu'); // 菜单管理
 const billRouter = require('./routes/bill'); // 菜单管理
-const gorupRouter = require('./routes/gorup')
+const gorupRouter = require('./routes/gorup');
+
+// const swaggerUi = require('swagger-ui');
+// swaggerUi({
+//     dom_id: '#myDomId'
+// })
 const app = express();
+
 app.use('/public', express.static(__dirname + '/public')); // 设置静态资源托管
 app.set('views', path.join(__dirname, 'views')); // 静态页设置
 app.set('view engine', 'pug');
@@ -40,7 +46,7 @@ app.all('*', (req, res, next) => {
     res.header("Access-Control-Allow-Credentials", true); //可以带cookies
     res.header("Access-Control-Expose-Headers", "Set-Cookie");
     res.header("X-Powered-By", 'Express');
-    if (req.method == 'OPTIONS') {
+    if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
         next();
@@ -60,12 +66,8 @@ app.use(function (req, res, next) {
 });
 // 错误处理
 app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+console.log(err)
+    res.status(err.status || 500).json({code: -1,error: err})
 });
 
 module.exports = app;
