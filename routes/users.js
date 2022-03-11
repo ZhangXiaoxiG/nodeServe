@@ -4,7 +4,7 @@ const db = require('../model/express');
 const tool = require('../model/tool');
 const md5 = require('md5-node');
 const async = require('async');
-const {body, validationResult} = require('express-validator');
+const login = require('../schema/login')
 const user = require('../model/user.js');
 router.get('/checkUserInfo', (req, res) => {
     const data = {
@@ -29,6 +29,8 @@ router.get('/getUserList', function (req, res, next) {
 // 创建用户
 router.post('/create', function (req, res, next) {
         async.waterfall([(callback) => {
+            const q =  login.validate(req.body)
+            console.log(q)
             console.time('创建用户')
             const checkPhone = /^[1][3,4,5,7,8,9][0-9]{9}$/;
             let account = req.body.account

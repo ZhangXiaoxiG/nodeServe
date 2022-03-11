@@ -18,7 +18,17 @@ const gorupRouter = require('./routes/gorup');
 //     dom_id: '#myDomId'
 // })
 const app = express();
-
+app.use(function (req,res,next) {
+    // 自定义统一返回格式中间件
+    res.resMsg = function (err,data = null,code = -1,status = 200) {
+        res.status(status).json({
+            code: code,
+            message: err instanceof Error ? err.message : err,
+            data: data
+        })
+    }
+    next()
+})
 app.use('/public', express.static(__dirname + '/public')); // 设置静态资源托管
 app.set('views', path.join(__dirname, 'views')); // 静态页设置
 app.set('view engine', 'pug');
@@ -53,6 +63,7 @@ app.all('*', (req, res, next) => {
     }
 
 });
+
 // 注册路由
 app.use('/api', indexRouter);
 app.use('/api/menu', menuRouter);
@@ -60,6 +71,7 @@ app.use('/api/user', usersRouter);
 app.use('/api/uploading', upLoading)
 app.use('/api/bill', billRouter)
 app.use('/api/gorup', gorupRouter)
+
 // 捕获404并转发到错误处理程序
 app.use(function (req, res, next) {
     next(createError(404));
