@@ -31,7 +31,7 @@ exports.login = async (req, res, next) => {
         if (err) {
             res.resMsg(err, null, -1, 200)
         } else {
-            res.resMsg('登录成功！', {token:'Bearer ' + result}, 1, 200)
+            res.resMsg('登录成功！', {token:result}, 1, 200)
         }
     })
 }

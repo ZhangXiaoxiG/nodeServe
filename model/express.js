@@ -1,10 +1,12 @@
 let mysql = require('mysql');
 const fs = require("fs");
 const sd = require('silly-datetime');
+const config = require('./config.json')
 const db = {
     insert: function (sql, paras) {
         return new Promise((resolve,reject) => {
             const connection = this.connection()
+            console.log(config)
             connection.query(sql, paras, (error, results, fields) => {
                 this.close(connection)
                 if (error) {
@@ -33,12 +35,12 @@ const db = {
     connection: function () {
         // 数据库配置
         let connection = mysql.createConnection({
-            host: '127.0.0.1',
-            user: 'root',
-            password: 'xiaoxi520',
-            database: 'baby',
-            port: 3306,
-            multipleStatements: true
+            host: config.database.host,
+            user:  config.database.user,
+            password: config.database.password,
+            database: config.database.database,
+            port: config.database.port,
+            multipleStatements: config.database.multipleStatements
         });
         // 数据库连接
         connection.connect(function (err) {

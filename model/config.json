@@ -1,7 +1,8 @@
 {
   "database": {
     "host": "127.0.0.1",
-    "user": "xiaoxi520",
+    "user": "root",
+    "password": "xiaoxi520",
     "database": "baby",
     "port": 3306,
     "multipleStatements": true

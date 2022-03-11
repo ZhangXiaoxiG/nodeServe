@@ -1,6 +1,7 @@
 # 小逻辑
 ## 项目启动
 * 将sql/database.sql文件导入数据库
+* 在model/config.json中配置数据库信息
 * 安装依赖
 ```bash
 npm install 
