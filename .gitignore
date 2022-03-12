@@ -1,2 +1,4 @@
 node_modules
 .idea
+sqlLog.txt
+log.txt

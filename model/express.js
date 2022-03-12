@@ -6,11 +6,10 @@ const db = {
     insert: function (sql, paras) {
         return new Promise((resolve,reject) => {
             const connection = this.connection()
-            console.log(config)
             connection.query(sql, paras, (error, results, fields) => {
                 this.close(connection)
                 if (error) {
-                    let err = `${sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')}: error: ${error}`
+                    let err = `\n ${sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss')}: error: ${error}`
                     fs.appendFile('sqlLog.txt', err, 'utf8', (err) => {
                         console.log(err)
                     })
